@@ -33,8 +33,8 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="p-6 border-b border-border">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">NP</span>
+          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#0742a0' }}>
+            <span className="text-white font-bold text-sm">NP</span>
           </div>
           <div>
             <h1 className="font-semibold text-foreground">NexusPay</h1>
@@ -56,11 +56,12 @@ export default function Sidebar() {
                   key={item.label}
                   onClick={() => setActiveItem(item.label)}
                   className={cn(
-                    "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors",
+                    "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all duration-200",
                     index === 0
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-primary/10"
+                      ? "shadow-sm"
+                      : "text-muted-foreground hover:bg-blue-50 hover:text-blue-700"
                   )}
+                  style={index === 0 ? { backgroundColor: '#0742a0', color: 'white' } : {}}
                 >
                   <div className="flex items-center space-x-3">
                     <item.icon className="w-4 h-4" />
@@ -86,10 +87,10 @@ export default function Sidebar() {
                   key={item.label}
                   onClick={() => setActiveItem(item.label)}
                   className={cn(
-                    "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors",
+                    "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all duration-200",
                     false
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-primary/10"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-muted-foreground hover:bg-blue-50 hover:text-blue-700"
                   )}
                 >
                   <div className="flex items-center space-x-3">
@@ -106,14 +107,14 @@ export default function Sidebar() {
       {/* User Section */}
       <div className="p-4 border-t border-border">
         <div className="flex items-center space-x-3 p-3 rounded-lg bg-accent">
-          <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-            <span className="text-muted-foreground text-sm font-medium">AM</span>
+          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#0742a0' }}>
+            <span className="text-white font-bold text-sm">PU</span>
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-foreground">Alex Morgan</p>
+            <p className="text-sm font-medium text-foreground">Prayag Upadhyaya</p>
             <p className="text-xs text-muted-foreground">Super Admin</p>
           </div>
-          <button className="text-muted-foreground hover:text-foreground">
+          <button className="text-muted-foreground hover:text-foreground hover:bg-gray-100 p-1 rounded transition-all duration-200">
             <LogOut className="w-4 h-4" />
           </button>
         </div>

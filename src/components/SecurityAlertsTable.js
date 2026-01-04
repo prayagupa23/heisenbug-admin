@@ -6,27 +6,27 @@ const alerts = [
   {
     severity: 'critical',
     transactionId: 'TXN-88392-LKA',
-    user: 'John Doe',
+    user: 'Parth Salunke',
     amount: '₹45,000',
-    riskScore: '8.7',
+    riskScore: '89.7',
     flagType: 'Velocity Check Fail',
     action: 'Review'
   },
   {
     severity: 'warning',
     transactionId: 'TXN-10293-MMS',
-    user: 'Jane Smith',
+    user: 'Deep Bandekar',
     amount: '₹12,500',
-    riskScore: '6.2',
+    riskScore: '45.5',
     flagType: 'Device Mismatch',
     action: 'Review'
   },
   {
     severity: 'low',
     transactionId: 'TXN-44512-00P',
-    user: 'Mike Johnson',
+    user: 'Vishesh Kamble',
     amount: '₹3,200',
-    riskScore: '3.1',
+    riskScore: '23.1',
     flagType: 'Unusual Location',
     action: 'Review'
   }
@@ -37,7 +37,7 @@ export default function SecurityAlertsTable() {
     <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-foreground mb-4">Recent High-Risk Flags</h2>
-        <button className="flex items-center space-x-1 text-sm text-primary hover:text-primary/80">
+        <button className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-2 py-1 rounded transition-all duration-200">
           <span>View All Cases</span>
           <ArrowRight className="w-4 h-4" />
         </button>
@@ -62,7 +62,7 @@ export default function SecurityAlertsTable() {
                 <td className="py-3 px-2 text-sm text-foreground">{alert.riskScore}</td>
                 <td className="py-3 px-2 text-sm text-foreground">{alert.flagType}</td>
                 <td className="py-3 px-2">
-                  <button className="px-3 py-1 text-xs font-medium bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors">
+                  <button className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700 hover:shadow-sm transition-all duration-200">
                     {alert.action}
                   </button>
                 </td>

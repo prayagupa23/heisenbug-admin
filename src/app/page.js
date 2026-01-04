@@ -12,7 +12,7 @@ export default function Dashboard() {
   const kpiData = [
     {
       title: 'Total Volume (24h)',
-      value: '₹124.5 Cr',
+      value: '₹0 Cr',
       change: '+5.2%',
       changeType: 'positive',
       icon: 'Monitor',
@@ -20,24 +20,24 @@ export default function Dashboard() {
     },
     {
       title: 'Fraud Blocked',
-      value: '₹12.5 L',
-      change: '+8.7%',
+      value: '₹0 L',
+      change: '+0%',
       changeType: 'positive',
       icon: 'Shield',
       iconColor: 'bg-red-500'
     },
     {
       title: 'High-Risk Flags',
-      value: '14',
-      change: '+2',
+      value: '0',
+      change: '+0',
       changeType: 'positive',
       icon: 'AlertTriangle',
       iconColor: 'bg-orange-500'
     },
     {
       title: 'Active Users',
-      value: '8,420',
-      change: '+12.3%',
+      value: '0',
+      change: '+0%',
       changeType: 'positive',
       icon: 'Users',
       iconColor: 'bg-blue-500'

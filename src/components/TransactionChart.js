@@ -52,10 +52,10 @@ export default function TransactionChart() {
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded text-sm font-medium transition-all duration-200 ${
                 activeFilter === filter
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-muted-foreground hover:bg-blue-50 hover:text-blue-700'
               }`}
             >
               {filter}
@@ -94,6 +94,7 @@ export default function TransactionChart() {
               strokeWidth={2}
               dot={false}
               name="Volume"
+              style={{ filter: 'drop-shadow(0 2px 4px rgba(7, 66, 160, 0.1))' }}
             />
             <Line 
               type="monotone" 

@@ -37,7 +37,7 @@ export default function Header() {
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-lg hover:bg-accent transition-colors"
+          className="p-2 rounded-lg hover:bg-gray-100 hover:shadow-sm transition-all duration-200"
         >
           {isDark ? (
             <Sun className="w-4 h-4 text-foreground" />
@@ -47,14 +47,14 @@ export default function Header() {
         </button>
 
         {/* Notifications */}
-        <button className="p-2 rounded-lg hover:bg-accent transition-colors relative">
-          <Bell className="w-4 h-4 text-foreground" />
+        <button className="p-2 rounded-lg hover:bg-gray-100 hover:shadow-sm transition-all duration-200 relative">
+          <Bell className="w-4 h-4 text-gray-600" />
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
 
         {/* Help */}
-        <button className="p-2 rounded-lg hover:bg-accent transition-colors">
-          <HelpCircle className="w-4 h-4 text-foreground" />
+        <button className="p-2 rounded-lg hover:bg-gray-100 hover:shadow-sm transition-all duration-200">
+          <HelpCircle className="w-4 h-4 text-gray-600" />
         </button>
       </div>
     </div>

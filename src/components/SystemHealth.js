@@ -47,7 +47,7 @@ export default function SystemHealth() {
         ))}
       </div>
 
-      <button className="w-full mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">
+      <button className="w-full mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 hover:shadow-sm transition-all duration-200 text-sm font-medium">
         View System Logs
       </button>
     </div>
