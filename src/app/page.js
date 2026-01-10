@@ -1,5 +1,10 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { supabase } from '@/lib/supabaseClient'
+import { isAdminUser } from '@/lib/isAdmin'
+
 import Sidebar from '@/components/Sidebar'
 import Header from '@/components/Header'
 import KPICard from '@/components/KPICard'
@@ -8,79 +13,101 @@ import SystemHealth from '@/components/SystemHealth'
 import GeographicRisk from '@/components/GeographicRisk'
 import SecurityAlertsTable from '@/components/SecurityAlertsTable'
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 }
+}
+
+function formatINR(amount) {
+  if (!amount) return '₹0'
+  if (amount >= 1e7) return `₹${(amount / 1e7).toFixed(2)} Cr`
+  if (amount >= 1e5) return `₹${(amount / 1e5).toFixed(2)} L`
+  return `₹${amount.toLocaleString('en-IN')}`
+}
+
 export default function Dashboard() {
-  const kpiData = [
-    {
-      title: 'Total Volume (24h)',
-      value: '₹0 Cr',
-      change: '+5.2%',
-      changeType: 'positive',
-      icon: 'Monitor',
-      iconColor: 'bg-primary'
-    },
-    {
-      title: 'Fraud Blocked',
-      value: '₹0 L',
-      change: '+0%',
-      changeType: 'positive',
-      icon: 'Shield',
-      iconColor: 'bg-red-500'
-    },
-    {
-      title: 'High-Risk Flags',
-      value: '0',
-      change: '+0',
-      changeType: 'positive',
-      icon: 'AlertTriangle',
-      iconColor: 'bg-orange-500'
-    },
-    {
-      title: 'Active Users',
-      value: '0',
-      change: '+0%',
-      changeType: 'positive',
-      icon: 'Users',
-      iconColor: 'bg-blue-500'
+  const [loading, setLoading] = useState(true)
+  const [kpis, setKpis] = useState(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    async function load() {
+      const allowed = await isAdminUser()
+      if (!allowed) {
+        window.location.href = '/login'
+        return
+      }
+
+      // fetch dashboard data AFTER auth
     }
-  ]
+
+    load()
+  }, [])
+
+
+  if (loading) {
+    return (
+        <div className="h-screen flex items-center justify-center text-muted-foreground">
+          Loading analytics…
+        </div>
+    )
+  }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar />
-      
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-7xl mx-auto">
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-              {kpiData.map((kpi, index) => (
-                <KPICard key={index} {...kpi} />
-              ))}
-            </div>
+      <div className="flex h-screen bg-background text-foreground">
+        <Sidebar />
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Chart - Takes 2 columns */}
-              <div className="lg:col-span-2">
+        <div className="flex-1 flex flex-col">
+          <Header />
+
+          <main className="flex-1 overflow-y-auto p-8 space-y-10">
+
+            {/* KPI SECTION */}
+            <motion.section
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
+                transition={{ staggerChildren: 0.1 }}
+                className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
+            >
+              <KPICard title="Total Volume" value={formatINR(kpis.totalVolume)} icon="Monitor" />
+              <KPICard title="Fraud Blocked" value={formatINR(kpis.fraudBlocked)} icon="Shield" />
+              <KPICard title="High-Risk Flags" value={kpis.highRisk} icon="AlertTriangle" />
+              <KPICard title="Active Users" value={kpis.activeUsers} icon="Users" />
+            </motion.section>
+
+            {/* CHART */}
+            <motion.section
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
+                transition={{ delay: 0.2 }}
+                className="grid grid-cols-1 xl:grid-cols-3 gap-6"
+            >
+              <div className="xl:col-span-2">
                 <TransactionChart />
               </div>
 
-              {/* Right Panel - Takes 1 column */}
               <div className="space-y-6">
                 <SystemHealth />
                 <GeographicRisk />
               </div>
-            </div>
+            </motion.section>
 
-            {/* Security Alerts Table - Full width */}
-            <div className="mt-6">
+            {/* TABLE */}
+            <motion.section
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
+                transition={{ delay: 0.4 }}
+            >
               <SecurityAlertsTable />
-            </div>
-          </div>
-        </main>
+            </motion.section>
+
+          </main>
+        </div>
       </div>
-    </div>
   )
 }
+
