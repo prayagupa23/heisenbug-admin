@@ -28,29 +28,105 @@ function formatINR(amount) {
 export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [kpis, setKpis] = useState(null)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    async function load() {
-      const allowed = await isAdminUser()
-      if (!allowed) {
-        window.location.href = '/login'
-        return
-      }
+    let isMounted = true
 
-      // fetch dashboard data AFTER auth
+    async function load() {
+      try {
+        console.log('Starting dashboard load...')
+        
+        const allowed = await isAdminUser()
+        console.log('Admin check result:', allowed)
+        
+        if (!allowed) {
+          console.log('User not authorized, redirecting to login...')
+          window.location.href = '/login'
+          return
+        }
+
+        // Mock data - Replace this with your actual data fetching logic
+        const mockKpis = {
+          totalVolume: 12500000, // 1.25 Cr
+          fraudBlocked: 125000,  // 1.25 L
+          highRisk: 18,
+          activeUsers: 1243
+        }
+
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        if (isMounted) {
+          setKpis(mockKpis)
+          setLoading(false)
+          console.log('Dashboard data loaded successfully')
+        }
+      } catch (error) {
+        console.error('Error loading dashboard:', error)
+        if (isMounted) {
+          setError('Failed to load dashboard. Please try again.')
+          setLoading(false)
+        }
+      }
     }
 
     load()
+
+    // Cleanup function
+    return () => {
+      isMounted = false
+    }
   }, [])
 
 
   if (loading) {
     return (
-        <div className="h-screen flex items-center justify-center text-muted-foreground">
-          Loading analytics…
+      <div className="flex h-screen bg-background text-foreground">
+        <Sidebar />
+        <div className="flex-1 flex flex-col">
+          <Header />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground">Loading dashboard...</p>
+              <p className="text-sm text-muted-foreground">This may take a moment</p>
+            </div>
+          </div>
         </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen bg-background text-foreground">
+        <Sidebar />
+        <div className="flex-1 flex flex-col">
+          <Header />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center space-y-4 max-w-md p-6 bg-card rounded-lg border border-destructive/20">
+              <div className="w-12 h-12 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold">Something went wrong</h2>
+              <p className="text-muted-foreground">{error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     )
   }
 
