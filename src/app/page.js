@@ -32,101 +32,101 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-
     let isMounted = true
 
-    async function load() {
+    async function loadDashboard() {
       try {
-        console.log('Starting dashboard load...')
-        
+        // 1. Admin check
         const allowed = await isAdminUser()
-        console.log('Admin check result:', allowed)
-        
         if (!allowed) {
-          console.log('User not authorized, redirecting to login...')
           window.location.href = '/login'
           return
         }
 
-        // Mock data - Replace this with your actual data fetching logic
-        const mockKpis = {
-          totalVolume: 12500000, // 1.25 Cr
-          fraudBlocked: 125000,  // 1.25 L
-          highRisk: 18,
-          activeUsers: 1243
+        // 2. Fetch dashboard metrics ONLY
+        const { data: metrics, error: metricsError } = await supabase
+            .from('dashboard_metrics')
+            .select(`
+            total_volume,
+            fraud_blocked,
+            high_risk_count,
+            active_users_count
+          `)
+            .eq('period', 'lifetime') // ✅ IMPORTANT
+            .order('calculated_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
+        if (metricsError) {
+          console.error('Metrics fetch error:', metricsError.message)
+          throw new Error('Failed to load dashboard metrics')
         }
 
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        if (isMounted) {
-          setKpis(mockKpis)
-          setLoading(false)
-          console.log('Dashboard data loaded successfully')
+        // 3. Safe fallback
+        const loadedKpis = {
+          totalVolume: metrics?.total_volume ?? 0,
+          fraudBlocked: metrics?.fraud_blocked ?? 0,
+          highRisk: metrics?.high_risk_count ?? 0,
+          activeUsers: metrics?.active_users_count ?? 0
         }
-      } catch (error) {
-        console.error('Error loading dashboard:', error)
+
         if (isMounted) {
-          setError('Failed to load dashboard. Please try again.')
+          setKpis(loadedKpis)
+          setLoading(false)
+        }
+      } catch (err) {
+        console.error('Dashboard load error:', err)
+        if (isMounted) {
+          setError(err.message || 'Failed to load dashboard')
           setLoading(false)
         }
       }
     }
 
-    load()
+    loadDashboard()
 
-    // Cleanup function
     return () => {
       isMounted = false
     }
   }, [])
 
-
   if (loading) {
     return (
-      <div className="flex h-screen bg-background text-foreground">
-        <Sidebar />
-        <div className="flex-1 flex flex-col">
-          <Header />
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center space-y-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-              <p className="text-muted-foreground">Loading dashboard...</p>
-              <p className="text-sm text-muted-foreground">This may take a moment</p>
+        <div className="flex h-screen bg-background text-foreground">
+          <Sidebar />
+          <div className="flex-1 flex flex-col">
+            <Header />
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center space-y-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
+                <p className="text-muted-foreground">Loading dashboard...</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex h-screen bg-background text-foreground">
-        <Sidebar />
-        <div className="flex-1 flex flex-col">
-          <Header />
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center space-y-4 max-w-md p-6 bg-card rounded-lg border border-destructive/20">
-              <div className="w-12 h-12 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mx-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
+        <div className="flex h-screen bg-background text-foreground">
+          <Sidebar />
+          <div className="flex-1 flex flex-col">
+            <Header />
+            <div className="flex-1 flex items-center justify-center">
+              <div className="p-6 bg-card rounded-lg border border-destructive/20 text-center">
+                <h2 className="text-xl font-semibold">Something went wrong</h2>
+                <p className="text-muted-foreground mt-2">{error}</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md"
+                >
+                  Try Again
+                </button>
               </div>
-              <h2 className="text-xl font-semibold">Something went wrong</h2>
-              <p className="text-muted-foreground">{error}</p>
-              <button 
-                onClick={() => window.location.reload()} 
-                className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-              >
-                Try Again
-              </button>
             </div>
           </div>
         </div>
-      </div>
     )
   }
 
@@ -138,8 +138,7 @@ export default function Dashboard() {
           <Header />
 
           <main className="flex-1 overflow-y-auto p-8 space-y-10">
-
-            {/* KPI SECTION */}
+            {/* KPIs */}
             <motion.section
                 variants={fadeUp}
                 initial="hidden"
@@ -153,7 +152,7 @@ export default function Dashboard() {
               <KPICard title="Active Users" value={kpis.activeUsers} icon="Users" />
             </motion.section>
 
-            {/* CHART */}
+            {/* Charts */}
             <motion.section
                 variants={fadeUp}
                 initial="hidden"
@@ -164,14 +163,13 @@ export default function Dashboard() {
               <div className="xl:col-span-2">
                 <TransactionChart />
               </div>
-
               <div className="space-y-6">
                 <SystemHealth />
                 <GeographicRisk />
               </div>
             </motion.section>
 
-            {/* TABLE */}
+            {/* Table */}
             <motion.section
                 variants={fadeUp}
                 initial="hidden"
@@ -180,10 +178,10 @@ export default function Dashboard() {
             >
               <SecurityAlertsTable />
             </motion.section>
-
           </main>
         </div>
       </div>
   )
 }
+
 
