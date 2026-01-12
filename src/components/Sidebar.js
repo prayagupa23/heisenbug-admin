@@ -18,11 +18,11 @@ import { cn } from '@/lib/utils'
 const menuItems = [
   { icon: LayoutDashboard, label: 'Overview', active: true },
   { icon: CreditCard, label: 'Transactions', active: false },
-  { icon: Shield, label: 'Fraud Cases', active: false, notification: '12' },
-  { icon: Users, label: 'User Management', active: false },
+  { icon: Shield, label: 'Fraud Cases', active: false},
+  // { icon: Users, label: 'User Management', active: false },
   { icon: BarChart3, label: 'Analytics', active: false },
   { icon: Settings, label: 'Settings', active: false },
-  { icon: FileText, label: 'Logs', active: false },
+  // { icon: FileText, label: 'Logs', active: false },
 ]
 
 export default function Sidebar() {
