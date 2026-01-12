@@ -34,17 +34,6 @@ export default function Header() {
           <span>System Healthy</span>
         </div>
 
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="p-2 rounded-lg hover:bg-gray-100 hover:shadow-sm transition-all duration-200"
-        >
-          {isDark ? (
-            <Sun className="w-4 h-4 text-foreground" />
-          ) : (
-            <Moon className="w-4 h-4 text-foreground" />
-          )}
-        </button>
 
         {/* Notifications */}
         <button className="p-2 rounded-lg hover:bg-gray-100 hover:shadow-sm transition-all duration-200 relative">

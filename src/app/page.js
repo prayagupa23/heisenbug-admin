@@ -1,5 +1,6 @@
 'use client'
-//page.js
+// page.js
+
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabaseClient'
@@ -9,7 +10,6 @@ import Sidebar from '@/components/Sidebar'
 import Header from '@/components/Header'
 import KPICard from '@/components/KPICard'
 import TransactionChart from '@/components/TransactionChart'
-import SystemHealth from '@/components/SystemHealth'
 import GeographicRisk from '@/components/GeographicRisk'
 import SecurityAlertsTable from '@/components/SecurityAlertsTable'
 
@@ -55,7 +55,7 @@ export default function Dashboard() {
             high_risk_count,
             active_users_count
           `)
-            .eq('period', 'all_time') // 🔥 must match DB exactly
+            .eq('period', 'all_time')
             .order('calculated_at', { ascending: false })
             .limit(1)
             .single()
@@ -81,7 +81,9 @@ export default function Dashboard() {
     }
 
     loadDashboard()
-    return () => { mounted = false }
+    return () => {
+      mounted = false
+    }
   }, [])
 
   if (loading) {
@@ -135,7 +137,7 @@ export default function Dashboard() {
               <KPICard title="Active Users" value={kpis.activeUsers} icon="Users" />
             </motion.section>
 
-            {/* CHARTS */}
+            {/* CHART + GEO RISK */}
             <motion.section
                 variants={fadeUp}
                 initial="hidden"
@@ -146,8 +148,9 @@ export default function Dashboard() {
               <div className="xl:col-span-2">
                 <TransactionChart />
               </div>
-              <div className="space-y-6">
-                <SystemHealth />
+
+              {/* Geographic Risk moved here */}
+              <div>
                 <GeographicRisk />
               </div>
             </motion.section>
