@@ -18,8 +18,7 @@ const fadeUp = {
   visible: { opacity: 1, y: 0 }
 }
 
-function formatINR(amount) {
-  if (!amount) return '₹0'
+function formatINR(amount = 0) {
   if (amount >= 1e7) return `₹${(amount / 1e7).toFixed(2)} Cr`
   if (amount >= 1e5) return `₹${(amount / 1e5).toFixed(2)} L`
   return `₹${amount.toLocaleString('en-IN')}`
@@ -27,24 +26,28 @@ function formatINR(amount) {
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true)
-  const [kpis, setKpis] = useState(null)
+  const [kpis, setKpis] = useState({
+    totalVolume: 0,
+    fraudBlocked: 0,
+    highRisk: 0,
+    activeUsers: 0
+  })
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    let isMounted = true
+    let mounted = true
 
     async function loadDashboard() {
       try {
-        // 1. Admin check
+        // ✅ Admin check
         const allowed = await isAdminUser()
         if (!allowed) {
           window.location.href = '/login'
           return
         }
 
-        // 2. Fetch dashboard metrics ONLY
-        const { data: metrics, error: metricsError } = await supabase
+        // ✅ Fetch ONE dashboard_metrics row
+        const { data, error } = await supabase
             .from('dashboard_metrics')
             .select(`
             total_volume,
@@ -52,42 +55,33 @@ export default function Dashboard() {
             high_risk_count,
             active_users_count
           `)
-            .eq('period', 'lifetime') // ✅ IMPORTANT
+            .eq('period', 'all_time') // 🔥 must match DB exactly
             .order('calculated_at', { ascending: false })
             .limit(1)
-            .maybeSingle()
+            .single()
 
-        if (metricsError) {
-          console.error('Metrics fetch error:', metricsError.message)
-          throw new Error('Failed to load dashboard metrics')
-        }
+        if (error) throw error
 
-        // 3. Safe fallback
-        const loadedKpis = {
-          totalVolume: metrics?.total_volume ?? 0,
-          fraudBlocked: metrics?.fraud_blocked ?? 0,
-          highRisk: metrics?.high_risk_count ?? 0,
-          activeUsers: metrics?.active_users_count ?? 0
-        }
-
-        if (isMounted) {
-          setKpis(loadedKpis)
+        if (mounted) {
+          setKpis({
+            totalVolume: Number(data.total_volume) || 0,
+            fraudBlocked: Number(data.fraud_blocked) || 0,
+            highRisk: Number(data.high_risk_count) || 0,
+            activeUsers: Number(data.active_users_count) || 0
+          })
           setLoading(false)
         }
       } catch (err) {
-        console.error('Dashboard load error:', err)
-        if (isMounted) {
-          setError(err.message || 'Failed to load dashboard')
+        console.error('Dashboard error:', err)
+        if (mounted) {
+          setError('Failed to load dashboard metrics')
           setLoading(false)
         }
       }
     }
 
     loadDashboard()
-
-    return () => {
-      isMounted = false
-    }
+    return () => { mounted = false }
   }, [])
 
   if (loading) {
@@ -97,10 +91,7 @@ export default function Dashboard() {
           <div className="flex-1 flex flex-col">
             <Header />
             <div className="flex-1 flex items-center justify-center">
-              <div className="text-center space-y-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
-                <p className="text-muted-foreground">Loading dashboard...</p>
-              </div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
             </div>
           </div>
         </div>
@@ -114,16 +105,7 @@ export default function Dashboard() {
           <div className="flex-1 flex flex-col">
             <Header />
             <div className="flex-1 flex items-center justify-center">
-              <div className="p-6 bg-card rounded-lg border border-destructive/20 text-center">
-                <h2 className="text-xl font-semibold">Something went wrong</h2>
-                <p className="text-muted-foreground mt-2">{error}</p>
-                <button
-                    onClick={() => window.location.reload()}
-                    className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md"
-                >
-                  Try Again
-                </button>
-              </div>
+              <p className="text-destructive">{error}</p>
             </div>
           </div>
         </div>
@@ -138,7 +120,8 @@ export default function Dashboard() {
           <Header />
 
           <main className="flex-1 overflow-y-auto p-8 space-y-10">
-            {/* KPIs */}
+
+            {/* KPI CARDS */}
             <motion.section
                 variants={fadeUp}
                 initial="hidden"
@@ -152,7 +135,7 @@ export default function Dashboard() {
               <KPICard title="Active Users" value={kpis.activeUsers} icon="Users" />
             </motion.section>
 
-            {/* Charts */}
+            {/* CHARTS */}
             <motion.section
                 variants={fadeUp}
                 initial="hidden"
@@ -169,7 +152,7 @@ export default function Dashboard() {
               </div>
             </motion.section>
 
-            {/* Table */}
+            {/* TABLE */}
             <motion.section
                 variants={fadeUp}
                 initial="hidden"
@@ -178,10 +161,12 @@ export default function Dashboard() {
             >
               <SecurityAlertsTable />
             </motion.section>
+
           </main>
         </div>
       </div>
   )
 }
+
 
 
