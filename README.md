@@ -45,7 +45,7 @@ src/
 ├── app/
 │   ├── globals.css      # Global styles and theme variables
 │   ├── layout.js        # Root layout with theme provider
-│   └── page.js          # Main dashboard page
+│   └── transactionspage.js          # Main dashboard page
 ├── components/
 │   ├── Sidebar.js       # Navigation sidebar
 │   ├── Header.js        # Top header with search and theme toggle
@@ -74,7 +74,7 @@ The dashboard follows a fintech-grade design system with:
 
 ### Adding New KPI Cards
 
-1. Update the `kpiData` array in `src/app/page.js`
+1. Update the `kpiData` array in `src/app/transactionspage.js`
 2. Add new icon mappings in `src/components/LucideIcon.js`
 3. Customize colors in `tailwind.config.js`
 
