@@ -2,23 +2,16 @@
 
 import {
   LayoutDashboard,
-  CreditCard,
   Shield,
-  BarChart3,
-  Settings,
-  LogOut
+  LogOut,
+  Megaphone
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const mainMenuItems = [
   { icon: LayoutDashboard, label: 'Overview' },
-  { icon: CreditCard, label: 'Transactions' },
   { icon: Shield, label: 'Fraud Cases' },
-  { icon: BarChart3, label: 'Analytics' },
-]
-
-const systemMenuItems = [
-  { icon: Settings, label: 'Settings' },
+  { icon: Megaphone, label: 'Broadcast' },
 ]
 
 export default function Sidebar({ activeItem, setActiveItem }) {
@@ -56,31 +49,6 @@ export default function Sidebar({ activeItem, setActiveItem }) {
                                 : "text-muted-foreground hover:bg-blue-50 hover:text-blue-700"
                         )}
                         style={activeItem === item.label ? { backgroundColor: '#0742a0', color: 'white' } : {}}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.label}</span>
-                      </div>
-                    </button>
-                ))}
-              </nav>
-            </div>
-
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
-                SYSTEM
-              </p>
-              <nav className="space-y-1">
-                {systemMenuItems.map((item) => (
-                    <button
-                        key={item.label}
-                        onClick={() => setActiveItem(item.label)}
-                        className={cn(
-                            "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all duration-200",
-                            activeItem === item.label
-                                ? "bg-blue-600 text-white shadow-sm"
-                                : "text-muted-foreground hover:bg-blue-50 hover:text-blue-700"
-                        )}
                     >
                       <div className="flex items-center space-x-3">
                         <item.icon className="w-4 h-4" />
