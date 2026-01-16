@@ -1,62 +1,54 @@
-import { jsPDF } from "jspdf";
-import "jspdf-autotable";
-import nodemailer from "nodemailer";
+import { NextResponse } from 'next/server';
+import nodemailer from 'nodemailer';
 
 export async function POST(req) {
-    const { report } = await req.json();
+    try {
+        // Log to terminal to verify the API is even being hit
+        console.log("API Triggered: Preparing email...");
 
-    // 1. Generate PDF
-    const doc = new jsPDF();
-    doc.setFont("helvetica", "bold");
-    doc.text("OFFICIAL CYBER CRIME REPORT", 105, 20, { align: "center" });
+        const { pdfBase64, caseID, subjectDetails } = await req.json();
 
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 30);
-
-    const tableData = [
-        ["Field", "Value"],
-        ["Report ID", `REF-${Math.random().toString(36).toUpperCase().slice(2, 8)}`],
-        ["Reporter Name", report.reporter_name],
-        ["Reporter UPI", report.reporter_upi],
-        ["Accused Name", report.reported_name],
-        ["Accused UPI", report.reported_upi],
-        ["Reason/Violation", report.reason],
-    ];
-
-    doc.autoTable({
-        startY: 40,
-        head: [tableData[0]],
-        body: tableData.slice(1),
-        theme: 'grid'
-    });
-
-    const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
-
-    // 2. Setup Nodemailer (Demo/Hackathon mode)
-    // Use Mailtrap or a test Gmail account
-    let transporter = nodemailer.createTransport({
-        host: "smtp.mailtrap.io", // Use Mailtrap for hackathon demos!
-        port: 2525,
-        auth: {
-            user: process.env.MAILTRAP_USER,
-            pass: process.env.MAILTRAP_PASS
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            console.error("Missing ENV Variables");
+            return NextResponse.json({ error: "Server configuration missing credentials" }, { status: 500 });
         }
-    });
 
-    // 3. Send Email
-    await transporter.sendMail({
-        from: '"NexusPay Admin" <admin@nexuspay.com>',
-        to: "cybercell-demo@gov.in",
-        subject: `FRAUD ALERT: ${report.reported_upi}`,
-        text: `Please find the attached fraud report for UPI ID: ${report.reported_upi}`,
-        attachments: [
-            {
-                filename: `Report_${report.reported_upi}.pdf`,
-                content: pdfBuffer
-            }
-        ]
-    });
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS, // 16-digit App Password
+            },
+        });
 
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
+        const mailOptions = {
+            from: `"NexusPay Security" <${process.env.EMAIL_USER}>`,
+            to: 'sparthsalunke@gmail.com',
+            subject: `🚨 Official Fraud Dispatch: ${caseID}`,
+            html: `
+                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+                    <h2 style="color: #e11d48;">NEXUSPAY SECURITY ALERT</h2>
+                    <p><strong>Case ID:</strong> ${caseID}</p>
+                    <p><strong>Accused UPI:</strong> ${subjectDetails}</p>
+                    <hr style="border: 0; border-top: 1px solid #eee;" />
+                    <p style="font-size: 12px; color: #64748b;">The attached official evidence log has been generated via the NexusPay Admin Registry.</p>
+                </div>
+            `,
+            attachments: [
+                {
+                    filename: `NXP_Evidence_${caseID}.pdf`,
+                    content: pdfBase64,
+                    encoding: 'base64',
+                },
+            ],
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log("Email sent successfully!");
+        return NextResponse.json({ success: true });
+
+    } catch (error) {
+        console.error("Detailed SMTP Error:", error.message);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 }
