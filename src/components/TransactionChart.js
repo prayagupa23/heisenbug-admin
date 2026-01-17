@@ -34,6 +34,7 @@ export default function TransactionChart() {
     const days = RANGE_MAP[range]
     const fromDate = new Date()
     fromDate.setDate(fromDate.getDate() - days)
+    fromDate.setHours(0, 0, 0, 0) // Start from the beginning of the day
 
     const { data: txns, error } = await supabase
         .from('transactions')
@@ -47,21 +48,31 @@ export default function TransactionChart() {
       return
     }
 
+    // Initialize grouped object to ensure chronological order and fill empty days
     const grouped = {}
 
+    // Pre-fill keys for 1W to ensure a continuous graph even if some days have 0 transactions
+    if (range === '1W') {
+      for (let i = 0; i < 7; i++) {
+        const d = new Date()
+        d.setDate(d.getDate() - (6 - i))
+        const label = d.toLocaleDateString('en-IN', { weekday: 'short' })
+        grouped[label] = 0
+      }
+    }
+
     txns.forEach(txn => {
+      const txnDate = new Date(txn.created_at)
       const label =
           days <= 7
-              ? `W${Math.ceil(
-                  (new Date(txn.created_at).getTime() - fromDate.getTime()) /
-                  (7 * 24 * 60 * 60 * 1000)
-              )}`
-              : new Date(txn.created_at).toLocaleDateString('en-IN', {
+              ? txnDate.toLocaleDateString('en-IN', { weekday: 'short' })
+              : txnDate.toLocaleDateString('en-IN', {
                 day: 'numeric',
                 month: 'short',
               })
 
-      if (!grouped[label]) {
+      // If key doesn't exist (for 1M/3M), initialize it
+      if (grouped[label] === undefined) {
         grouped[label] = 0
       }
 
@@ -144,12 +155,12 @@ export default function TransactionChart() {
                       tickLine={false}
                       tick={{ fill: '#6b7280', fontSize: 11 }}
                       tickFormatter={v => `₹${v}K`}
-                      width={35}
+                      width={40}
                   />
 
                   <Tooltip
                       formatter={v => [`₹${v}K`, 'Volume']}
-                      labelFormatter={label => `Period ${label}`}
+                      labelFormatter={label => `Date: ${label}`}
                       contentStyle={{
                         backgroundColor: 'white',
                         border: '1px solid #e5e7eb',
@@ -164,6 +175,7 @@ export default function TransactionChart() {
                       stroke="#3b82f6"
                       strokeWidth={2}
                       fill="url(#colorValue)"
+                      animationDuration={1500}
                   />
 
                   <ReferenceLine
