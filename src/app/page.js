@@ -10,9 +10,9 @@ import Sidebar from '@/components/Sidebar'
 import Header from '@/components/Header'
 import KPICard from '@/components/KPICard'
 import TransactionChart from '@/components/TransactionChart'
-import GeographicRisk from '@/components/GeographicRisk'
 import SecurityAlertsTable from '@/components/SecurityAlertsTable'
 import ReportedCasesTable from '@/components/ReportedCasesTable'
+import AdminAlertPanel from '@/components/AdminAlertPanel'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -79,7 +79,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-        <div className="flex h-screen bg-background text-foreground text-foreground">
+        <div className="flex h-screen bg-background text-foreground">
           <Sidebar activeItem={activeItem} setActiveItem={setActiveItem} />
           <div className="flex-1 flex flex-col">
             <Header />
@@ -109,7 +109,6 @@ export default function Dashboard() {
                       variants={fadeUp}
                       className="space-y-10"
                   >
-                    {/* KPI CARDS */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                       <KPICard title="Total Volume" value={formatINR(kpis.totalVolume)} icon="Monitor" />
                       <KPICard title="Fraud Blocked" value={formatINR(kpis.fraudBlocked)} icon="Shield" />
@@ -117,17 +116,11 @@ export default function Dashboard() {
                       <KPICard title="Active Users" value={kpis.activeUsers} icon="Users" />
                     </div>
 
-                    {/* CHART + GEO RISK */}
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                      <div className="xl:col-span-2">
-                        <TransactionChart />
-                      </div>
-                      <div>
-                        <GeographicRisk />
-                      </div>
+                    {/* Transaction Chart now takes full width since GeographicRisk was removed */}
+                    <div className="w-full">
+                      <TransactionChart />
                     </div>
 
-                    {/* ALERTS TABLE */}
                     <SecurityAlertsTable />
                   </motion.div>
               ) : activeItem === 'Fraud Cases' ? (
@@ -140,6 +133,16 @@ export default function Dashboard() {
                   >
                     <ReportedCasesTable />
                   </motion.div>
+              ) : activeItem === 'Broadcast' ? (
+                  <motion.div
+                      key="broadcast"
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                      variants={fadeUp}
+                  >
+                    <AdminAlertPanel />
+                  </motion.div>
               ) : (
                   <div className="flex items-center justify-center h-64 text-muted-foreground">
                     Section "{activeItem}" is coming soon.
@@ -151,6 +154,3 @@ export default function Dashboard() {
       </div>
   )
 }
-
-
-
