@@ -60,6 +60,22 @@ src/
     └── utils.js         # Utility functions
 ```
 
+Load ENV file of your self with this format :
+//SUPABASE - env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+//REPORT CASES EMAIL
+EMAIL_USER=
+EMAIL_PASS=
+
+//TWILIO
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_WHATSAPP_NUMBER=
+
+
+
 ## Design System
 
 The dashboard follows a fintech-grade design system with:
