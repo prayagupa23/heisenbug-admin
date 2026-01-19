@@ -17,6 +17,11 @@ export default function AdminLogin() {
         setError(null)
 
         try {
+            // Check if supabase client is available
+            if (!supabase) {
+                throw new Error('Authentication service not available')
+            }
+
             const { error } = await supabase.auth.signInWithPassword({
                 email,
                 password,

@@ -4,6 +4,12 @@ import { supabase } from './supabaseClient'
 
 export async function isAdminUser() {
     try {
+        // Check if supabase client is available
+        if (!supabase) {
+            console.log('Supabase client not available')
+            return false
+        }
+        
         console.log('Checking admin status...')
         
         // Get the current user session

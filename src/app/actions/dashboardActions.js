@@ -1,8 +1,9 @@
-'use server.ts'
+'use server'
 
-import { supabase } from '@/lib/supabaseClient'
+import { createSupabaseClient } from '@/lib/supabaseServer'
 
 export async function getDashboardMetrics() {
+    const supabase = createSupabaseClient()
     const last24h = new Date(Date.now() - 86400000).toISOString()
 
     const { data: volume } = await supabase
